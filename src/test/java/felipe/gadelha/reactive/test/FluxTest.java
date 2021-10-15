@@ -1,10 +1,12 @@
 package felipe.gadelha.reactive.test;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.blockhound.BlockHound;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.ConnectableFlux;
 import reactor.core.publisher.Flux;
@@ -16,6 +18,11 @@ import java.util.List;
 public class FluxTest {
 
     private static final Logger log = LoggerFactory.getLogger(FluxTest.class.getSimpleName());
+
+    @BeforeAll
+    public static void setUp() {
+        BlockHound.install();
+    }
 
     @Test
     public void fluxSubscriber() {

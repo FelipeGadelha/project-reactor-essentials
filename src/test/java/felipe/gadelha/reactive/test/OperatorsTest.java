@@ -1,26 +1,33 @@
 package felipe.gadelha.reactive.test;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.blockhound.BlockHound;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple3;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class OperatorsTest {
 
     private static final Logger log = LoggerFactory.getLogger(OperatorsTest.class.getSimpleName());
+
+    @BeforeAll
+    public static void setUp() {
+        BlockHound.install(
+//                builder -> builder.allowBlockingCallsInside("org.slf4j.impl.SimpleLogger", "write")
+        );
+    }
 
     @Test
     public void subscribeOnSimple() {
@@ -176,7 +183,7 @@ public class OperatorsTest {
 
     @Test
     public void deferOperator() throws InterruptedException {
-        Mono<Long> just = Mono.just(System.currentTimeMillis());
+//        Mono<Long> just = Mono.just(System.currentTimeMillis());
         Mono<Long> defer = Mono.defer(() -> Mono.just(System.currentTimeMillis()));
 
         defer.subscribe(l -> log.info("time {}", l));
@@ -260,7 +267,7 @@ public class OperatorsTest {
     }
 
     @Test
-    public void mergeOperator() throws InterruptedException {
+    public void mergeOperator() {
         Flux<String> flux1 = Flux.just("a", "b").delayElements(Duration.ofMillis(200));
         Flux<String> flux2 = Flux.just("c", "d");
 
@@ -276,7 +283,7 @@ public class OperatorsTest {
     }
 
     @Test
-    public void mergeWithOperator() throws InterruptedException {
+    public void mergeWithOperator() {
         Flux<String> flux1 = Flux.just("a", "b").delayElements(Duration.ofMillis(200));
         Flux<String> flux2 = Flux.just("c", "d");
 
@@ -292,7 +299,7 @@ public class OperatorsTest {
     }
 
     @Test
-    public void mergeSequentialOperator() throws InterruptedException {
+    public void mergeSequentialOperator() {
         Flux<String> flux1 = Flux.just("a", "b").delayElements(Duration.ofMillis(200));
         Flux<String> flux2 = Flux.just("c", "d");
 
@@ -308,7 +315,7 @@ public class OperatorsTest {
     }
 
     @Test
-    public void mergeDelayErrorOperator() throws InterruptedException {
+    public void mergeDelayErrorOperator() {
         Flux<String> flux1 = Flux.just("a", "b")
                 .map(s -> {
                     if (s.equals("b")) throw new IllegalArgumentException();
@@ -346,7 +353,7 @@ public class OperatorsTest {
                 .expectComplete();
     }
     @Test
-    public void flatMapSequentialOperator() throws InterruptedException {
+    public void flatMapSequentialOperator() {
         Flux<String> flux = Flux.just("a", "b");
 
         Flux<String> flatFlux = flux.map(String::toUpperCase)
@@ -382,7 +389,6 @@ public class OperatorsTest {
     @Test
     public void zipWithOperator() {
         Flux<String> titleFlux = Flux.just("Grand Blue", "Baki");
-        Flux<String> studioFlux = Flux.just("Zero-G", "TMS Entertainment");
         Flux<Integer> episodesFlux = Flux.just(12, 24);
 
         Flux<Anime> animeFlux = titleFlux.zipWith(episodesFlux)
@@ -404,9 +410,9 @@ public class OperatorsTest {
     }
 
     class Anime {
-        private String title;
-        private String studio;
-        private int episodes;
+        private final String title;
+        private final String studio;
+        private final int episodes;
 
         public Anime(String title, String studio, int episodes) {
             this.title = title;
@@ -414,9 +420,9 @@ public class OperatorsTest {
             this.episodes = episodes;
         }
 
-        public String getTitle() { return title; }
-        public String getStudio() { return studio; }
-        public int getEpisodes() { return episodes; }
+//        public String getTitle() { return title; }
+//        public String getStudio() { return studio; }
+//        public int getEpisodes() { return episodes; }
 
         @Override
         public boolean equals(Object o) {

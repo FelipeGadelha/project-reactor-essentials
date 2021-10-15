@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
+import java.time.Duration;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
@@ -22,22 +23,32 @@ public class MonoTest {
 
     @BeforeAll
     public static void setUp() {
-//        BlockHound.install(); //não funciona no Java 17
+        BlockHound.install();
     }
 
     @Test
     public void blockHoundWorks() {
-        try {
-            FutureTask<?> task = new FutureTask<>(() -> {
-                Thread.sleep(0);
-                return "";
-            });
-            Schedulers.parallel().schedule(task);
-            task.get(10, TimeUnit.SECONDS);
-            Assertions.fail("should fail");
-        } catch (Exception e) {
-            Assertions.assertTrue(e.getCause() instanceof BlockingOperationError);
-        }
+        Mono.delay(Duration.ofSeconds(1))
+                .doOnNext(it -> {
+                    try {
+                        Thread.sleep(10);
+                    }
+                    catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .block();
+//        try {
+//            FutureTask<?> task = new FutureTask<>(() -> {
+//                Thread.sleep(0);
+//                return "";
+//            });
+//            Schedulers.parallel().schedule(task);
+//            task.get(10, TimeUnit.SECONDS);
+//            Assertions.fail("should fail");
+//        } catch (Exception e) {
+//            Assertions.assertTrue(e.getCause() instanceof BlockingOperationError);
+//        }
     }
 
     @Test
@@ -161,7 +172,9 @@ public class MonoTest {
 
         log.info("-------------------------------");
         StepVerifier.create(error)
-                .expectError(IllegalArgumentException.class)
+//                .expectError(IllegalArgumentException.class)
+                .expectNext("Felipe Gadelha")
+                .expectComplete()
                 .verify();
     }
 }
